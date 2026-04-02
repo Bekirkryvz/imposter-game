@@ -717,6 +717,7 @@ function renderClue() {
     ${timerHTML}
     ${inputArea}
     <div class="player-list mt-12" id="clue-progress-list">${statusList}</div>
+    ${isHost() ? '<button type="button" class="btn-ghost mt-12" id="btn-force-clue" style="color:#f87171;border:1px solid rgba(248,113,113,.3)">Herkesi Geç →</button>' : ''}
     <div class="warning mt-12">Cihazını başkalarına gösterme!</div>
   </div>`;
 }
@@ -960,6 +961,10 @@ function bindEvents() {
   }
 
   // Oylamaya geç
+  // Herkesi geç (force clue)
+  const btnForceClue = document.getElementById('btn-force-clue');
+  if (btnForceClue) btnForceClue.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'force_clue' }); });
+
   const btnGoVote = document.getElementById('btn-go-vote');
   if (btnGoVote) btnGoVote.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'go_vote' }); });
 

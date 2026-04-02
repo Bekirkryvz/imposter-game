@@ -689,6 +689,22 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      // ─── Tarifleri Zorla Geç (ev sahibi) ───
+      case 'force_clue': {
+        if (!myRoom || myIdx !== 0) return;
+        if (myRoom.phase !== 'clue') return;
+
+        // Tarif göndermeyenlere otomatik "..." yaz
+        for (const p of myRoom.players) {
+          if (p.alive && !p.clue) {
+            p.clue = '...';
+          }
+        }
+        myRoom.phase = 'clues';
+        broadcastState(myRoom);
+        break;
+      }
+
       // ─── Oylamaya Geç ───
       case 'go_vote': {
         if (!myRoom || myIdx !== 0) return;
