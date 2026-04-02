@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sahtekar</title>
+<style>
+/* ─── Reset & Temel ─── */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow-x:hidden}
+body{
+  font-family:'Segoe UI',Tahoma,sans-serif;
+  background:#0a0a0a;
+  color:#e0e0e0;
+  display:flex;justify-content:center;
+  min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+}
+#app{width:100%;max-width:460px;padding:16px;position:relative;min-height:100vh}
+
+/* ─── Animasyonlar ─── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes glow{0%,100%{text-shadow:0 0 20px #e63946,0 0 40px #c1121f}50%{text-shadow:0 0 30px #ff6b6b,0 0 60px #e63946}}
+@keyframes pulseBorder{0%,100%{border-color:rgba(230,57,70,.3)}50%{border-color:rgba(230,57,70,.7)}}
+@keyframes timerPulse{0%,100%{color:#f87171}50%{color:#fca5a5;transform:scale(1.05)}}
+
+.screen{animation:fadeIn .35s ease}
+.pop{animation:pop .3s ease}
+.pulse-anim{animation:pulse 1.5s ease-in-out infinite}
+.shake{animation:shake .4s ease}
+
+/* ─── Tipografi ─── */
+h1{font-size:2.2rem;font-weight:800;text-align:center;margin-bottom:8px}
+h2{font-size:1.3rem;font-weight:700;text-align:center;margin-bottom:12px;color:#e63946}
+h3{font-size:1.1rem;font-weight:600;margin-bottom:8px}
+.sub{font-size:.82rem;color:#888;text-align:center}
+
+/* ─── Başlık Glow ─── */
+.title-glow{
+  font-size:2.8rem;font-weight:900;text-align:center;
+  background:linear-gradient(135deg,#ff6b6b,#e63946,#c1121f);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:glow 3s ease-in-out infinite;
+  margin:32px 0 8px;letter-spacing:2px;
+}
+
+/* ─── Kart ─── */
+.card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:18px;margin-bottom:14px;
+}
+
+/* ─── Butonlar ─── */
+button{
+  display:block;width:100%;padding:14px;border:none;border-radius:11px;
+  font-size:.95rem;font-weight:700;text-transform:uppercase;
+  cursor:pointer;transition:all .15s;letter-spacing:.5px;
+}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+.btn-p{
+  background:linear-gradient(135deg,#e63946,#c1121f);color:#fff;
+  box-shadow:0 0 20px rgba(230,57,70,.3);
+}
+.btn-p:hover:not(:disabled){box-shadow:0 0 30px rgba(230,57,70,.5)}
+.btn-r{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff}
+.btn-g{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+.btn-o{
+  background:transparent;border:2px solid #e63946;color:#ff6b6b;
+}
+.btn-ghost{background:transparent;color:#888;font-weight:600}
+
+.btn-sm{padding:10px 16px;font-size:.82rem;width:auto;display:inline-block}
+.btn-row{display:flex;gap:10px;margin-top:12px}
+.btn-row button{flex:1}
+
+/* ─── Form ─── */
+input,select,textarea{
+  width:100%;padding:12px 14px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);color:#e0e0e0;
+  font-size:.95rem;font-family:inherit;
+  outline:none;transition:border-color .2s;
+}
+input:focus,select:focus,textarea:focus{border-color:#e63946}
+textarea{resize:vertical;min-height:80px}
+label{display:block;font-size:.82rem;color:#888;margin-bottom:4px;font-weight:600}
+.field{margin-bottom:14px}
+select option{background:#111;color:#e0e0e0}
+
+/* ─── Toggle ─── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+.toggle{
+  width:48px;height:26px;border-radius:13px;
+  background:rgba(255,255,255,.12);
+  position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:#e63946}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:20px;height:20px;border-radius:50%;
+  background:#fff;transition:transform .2s;
+}
+.toggle.on::after{transform:translateX(22px)}
+
+/* ─── Avatar ─── */
+.avatar{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;
+}
+.avatar-lg{width:56px;height:56px;font-size:1.2rem;border-radius:50%}
+
+/* ─── Oyuncu Listesi ─── */
+.player-list{display:flex;flex-direction:column;gap:8px}
+.player-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;
+  background:rgba(255,255,255,.04);
+}
+.player-item .name{font-weight:600;flex:1}
+.player-item .tag{
+  font-size:.7rem;padding:2px 8px;border-radius:8px;
+  background:rgba(230,57,70,.25);color:#ff6b6b;font-weight:600;
+}
+.player-item .status{font-size:.78rem;color:#888}
+
+/* ─── Progress Dots ─── */
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
+.dot{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(255,255,255,.15);transition:background .3s;
+}
+.dot.filled{background:#e63946}
+
+/* ─── Kilitli Kutu ─── */
+.locked-box{
+  border:2px dashed rgba(230,57,70,.4);border-radius:14px;
+  padding:32px 20px;text-align:center;cursor:pointer;
+  transition:all .3s;position:relative;overflow:hidden;
+  animation:pulseBorder 2s ease-in-out infinite;
+}
+.locked-box:hover{border-color:#e63946}
+.locked-box.open{
+  border-style:solid;cursor:default;animation:none;
+}
+.locked-box.open.normal{border-color:#dc2626;background:rgba(220,38,38,.08)}
+.locked-box.open.sahtekar{border-color:#dc2626;background:rgba(220,38,38,.08)}
+.lock-icon{font-size:2.5rem;margin-bottom:8px}
+.lock-label{font-size:.85rem;color:#888}
+.word-reveal{font-size:2rem;font-weight:800;margin:8px 0}
+.role-desc{font-size:.8rem;color:#888;margin-top:8px}
+
+/* ─── Timer ─── */
+.timer{
+  font-size:2.5rem;font-weight:800;text-align:center;
+  color:#e63946;margin:8px 0;
+}
+.timer.danger{animation:timerPulse 1s ease-in-out infinite}
+
+/* ─── Tarif Kartı ─── */
+.clue-card{
+  padding:14px;border-radius:12px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  margin-bottom:10px;
+}
+.clue-card .clue-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.clue-card .clue-text{font-size:.95rem;line-height:1.4;padding-left:44px}
+
+/* ─── Puan Tablosu ─── */
+.score-row{
+  display:flex;align-items:center;gap:10px;
+  padding:12px;border-radius:10px;
+  background:rgba(255,255,255,.04);margin-bottom:8px;
+}
+.score-row .rank{font-size:1.1rem;font-weight:800;color:#888;width:24px;text-align:center}
+.score-row .name{flex:1;font-weight:600}
+.score-row .pts{font-weight:700;color:#e63946;font-size:1.1rem}
+.score-row .round-pts{font-size:.78rem;color:#22c55e;margin-left:4px}
+
+/* ─── Uyarı ─── */
+.warning{
+  text-align:center;font-size:.78rem;color:#fbbf24;
+  padding:8px;border-radius:8px;
+  background:rgba(251,191,36,.08);margin-top:12px;
+}
+
+/* ─── Oylama ─── */
+.vote-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px;border-radius:10px;
+  background:rgba(255,255,255,.04);margin-bottom:8px;
+  cursor:pointer;transition:all .2s;border:2px solid transparent;
+}
+.vote-item:hover{background:rgba(255,255,255,.07)}
+.vote-item.selected{border-color:#e63946;background:rgba(230,57,70,.1)}
+
+/* ─── Kelime Geçmişi ─── */
+.history-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 12px;border-radius:8px;
+  background:rgba(255,255,255,.04);margin-bottom:6px;
+  font-size:.88rem;
+}
+.history-item .hw{font-weight:600}
+.history-item .hr{font-size:.78rem;color:#888}
+
+/* ─── Rozet ─── */
+.badge{
+  display:inline-block;padding:4px 12px;border-radius:20px;
+  font-size:.78rem;font-weight:700;text-align:center;
+  margin-bottom:12px;
+}
+.badge-red{background:rgba(230,57,70,.2);color:#ff6b6b}
+.badge-green{background:rgba(34,197,94,.2);color:#86efac}
+
+/* ─── Diğer ─── */
+.text-center{text-align:center}
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+.mt-16{margin-top:16px}
+.mt-24{margin-top:24px}
+.mb-8{margin-bottom:8px}
+.mb-12{margin-bottom:12px}
+.gap-8{gap:8px}
+.hidden{display:none!important}
+
+/* Oda kodu büyük */
+.room-code{
+  font-size:2.5rem;font-weight:900;letter-spacing:8px;
+  text-align:center;color:#e63946;
+  background:rgba(230,57,70,.08);border-radius:12px;
+  padding:12px 20px;margin-bottom:16px;
+}
+
+/* Oyuncu sayacı */
+.player-count{
+  text-align:center;font-size:.85rem;color:#888;margin-bottom:12px;
+}
+
+/* Nasıl oynanır */
+.how-to .step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.how-to .step-num{
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(230,57,70,.2);color:#ff6b6b;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;font-weight:700;flex-shrink:0;
+}
+.how-to .step-text{font-size:.85rem;color:#aaa;line-height:1.4}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ─── Sahtekar İstemci ───
+
+const WS_URL = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`;
+let ws = null;
+let state = null;
+let prevPhase = null; // Önceki phase — akıllı render için
+let screen = 'menu';
+let roomCode = '';
+let timerInterval = null;
+let timerLeft = 0;
+let boxOpen = false;
+let selectedVote = -1;
+
+// ─── Cookie ───
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : '';
+}
+function setCookie(name, val, days) {
+  const d = new Date();
+  d.setTime(d.getTime() + days * 86400000);
+  document.cookie = `${name}=${encodeURIComponent(val)};expires=${d.toUTCString()};path=/`;
+}
+const savedName = getCookie('sahtekar_name');
+
+// ─── WebSocket ───
+function connect(onOpen) {
+  // Önceki bağlantıyı kapat
+  if (ws) { try { ws.close(); } catch(e) {} }
+  ws = new WebSocket(WS_URL);
+  ws.onopen = () => { if (onOpen) onOpen(); };
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    switch (msg.type) {
+      case 'created':
+        roomCode = msg.code;
+        screen = 'lobby';
+        render();
+        break;
+      case 'joined':
+        roomCode = msg.code;
+        screen = 'lobby';
+        render();
+        break;
+      case 'state':
+        state = msg.state;
+        handlePhase();
+        break;
+      case 'error':
+        showError(msg.message);
+        break;
+    }
+  };
+  ws.onerror = () => {
+    showError('Sunucuya bağlanılamadı');
+  };
+  ws.onclose = () => {
+    // Oyun aktifken ana menüye atma, sadece hata göster
+    if (screen !== 'menu' && screen !== 'create' && screen !== 'join' && screen !== 'lobby') {
+      showError('Bağlantı koptu!');
+    } else if (screen === 'lobby') {
+      state = null;
+      screen = 'menu';
+      render();
+    }
+  };
+}
+
+function wsSend(data) {
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify(data));
+}
+
+// ─── Akıllı Render: phase değişmediyse sadece kısmi güncelle ───
+function handlePhase() {
+  if (!state) return;
+
+  const newPhase = state.phase;
+  const oldPhase = prevPhase;
+  prevPhase = newPhase;
+
+  // Phase değişmediyse ve word/clue ekranındaysak → kısmi güncelle
+  if (oldPhase === newPhase) {
+    if (newPhase === 'word' && screen === 'word') {
+      updateWordDots(state);
+      return;
+    }
+    if (newPhase === 'clue' && screen === 'clue') {
+      updateClueProgress(state);
+      return;
+    }
+    if (newPhase === 'lobby' && screen === 'lobby') {
+      render(); // Lobi her zaman güncellenmeli (yeni oyuncu)
+      return;
+    }
+    // Diğer aynı phase tekrarlarında render etme
+    return;
+  }
+
+  // Phase değişti → tam render
+  boxOpen = false;
+  selectedVote = -1;
+
+  switch (newPhase) {
+    case 'lobby': screen = 'lobby'; break;
+    case 'word': screen = 'word'; break;
+    case 'clue': screen = 'clue'; startTimer(); break;
+    case 'clues': screen = 'clues'; stopTimer(); break;
+    case 'decision': screen = state.settings.votingEnabled ? 'vote' : 'decide'; break;
+    case 'scoreboard': screen = 'scoreboard'; stopTimer(); break;
+    case 'over': screen = 'over'; stopTimer(); break;
+  }
+  render();
+}
+
+// ─── Kısmi Güncelleyiciler ───
+// Sadece progress dots'ı günceller, ekranı yeniden render etmez
+function updateWordDots(st) {
+  const dotsEl = document.getElementById('word-dots');
+  if (!dotsEl) return;
+  const alive = st.players.filter(p => p.alive);
+  dotsEl.innerHTML = alive.map(p => `<div class="dot ${p.ready ? 'filled' : ''}"></div>`).join('');
+
+  // Kendi ready durumumu kontrol et
+  const myPlayer = st.players[st.myIdx];
+  if (myPlayer && myPlayer.ready) {
+    const readyArea = document.getElementById('word-ready-area');
+    if (readyArea) readyArea.innerHTML = '<p class="sub pulse-anim mt-12">Diğer oyuncular bekleniyor...</p>';
+  }
+}
+
+// Sadece oyuncu durum listesini günceller, textarea ve timer'a dokunmaz
+function updateClueProgress(st) {
+  const listEl = document.getElementById('clue-progress-list');
+  if (!listEl) return;
+  const alive = st.players.filter(p => p.alive);
+  listEl.innerHTML = alive.map(p => `
+    <div class="player-item">
+      ${avatarHTML(p)}
+      <span class="name">${esc(p.name)}</span>
+      <span class="status">${p.clue ? 'Gönderildi ✓' : 'Yazıyor...'}</span>
+    </div>`).join('');
+
+  // Kendi clue durumumu kontrol et — gönderilmişse formu değiştir
+  const myPlayer = st.players[st.myIdx];
+  if (myPlayer && myPlayer.clue && myPlayer.clue !== true) {
+    const inputArea = document.getElementById('clue-input-area');
+    if (inputArea && !inputArea.dataset.sent) {
+      inputArea.dataset.sent = '1';
+      inputArea.innerHTML = '<div class="card text-center"><p style="color:#22c55e;font-weight:600">Gönderildi!</p><p class="sub pulse-anim mt-8">Diğer oyuncular bekleniyor...</p></div>';
+    }
+  }
+}
+
+// ─── Timer ───
+function startTimer() {
+  stopTimer();
+  if (!state || state.settings.timerSecs === 0) return;
+  timerLeft = state.settings.timerSecs;
+  timerInterval = setInterval(() => {
+    timerLeft--;
+    if (timerLeft <= 0) {
+      stopTimer();
+      timerLeft = 0;
+    }
+    const el = document.getElementById('timer-display');
+    if (el) {
+      el.textContent = timerLeft + 'sn';
+      el.className = 'timer' + (timerLeft <= 5 && timerLeft > 0 ? ' danger' : '');
+    }
+  }, 1000);
+}
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+// ─── Hata Gösterimi ───
+function showError(msg) {
+  let el = document.getElementById('error-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'error-toast';
+    el.className = 'warning';
+    el.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99;max-width:400px';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  el.classList.add('shake');
+  setTimeout(() => { el.classList.add('hidden'); el.classList.remove('shake'); }, 3000);
+}
+
+// ─── Yardımcılar ───
+function me() { return state ? state.players[state.myIdx] : null; }
+function isHost() { return state && state.myIdx === 0; }
+function alivePlayers() { return state ? state.players.filter(p => p.alive) : []; }
+
+function avatarHTML(p, large) {
+  const cls = large ? 'avatar avatar-lg' : 'avatar';
+  const initial = p.name.charAt(0).toUpperCase();
+  return `<div class="${cls}" style="background:${p.color}">${initial}</div>`;
+}
+
+// ─── Render ───
+function render() {
+  const app = document.getElementById('app');
+  let html = '<div id="error-toast" class="warning hidden" style="position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99;max-width:400px"></div>';
+
+  switch (screen) {
+    case 'menu': html += renderMenu(); break;
+    case 'create': html += renderCreate(); break;
+    case 'join': html += renderJoin(); break;
+    case 'lobby': html += renderLobby(); break;
+    case 'word': html += renderWord(); break;
+    case 'clue': html += renderClue(); break;
+    case 'clues': html += renderClues(); break;
+    case 'decide': html += renderDecide(); break;
+    case 'vote': html += renderVote(); break;
+    case 'scoreboard': html += renderScoreboard(); break;
+    case 'over': html += renderOver(); break;
+    default: html += renderMenu();
+  }
+
+  app.innerHTML = html;
+  bindEvents();
+}
+
+// ─── Ekranlar ───
+
+function renderMenu() {
+  return `
+  <div class="screen">
+    <div class="title-glow">SAHTEKAR</div>
+    <p class="sub mb-12">Kim sahtekar, kim masum?</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px">
+      <button type="button" class="btn-p" onclick="goScreen('create')">Oyun Kur</button>
+      <button type="button" class="btn-o" onclick="goScreen('join')">Katıl</button>
+    </div>
+    <div class="card mt-24">
+      <h3>Nasıl Oynanır?</h3>
+      <div class="how-to">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Bir oyuncu oda kurar, diğerleri telefonlarından katılır</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Herkese gizlice bir kelime verilir — ama sahtekar kelimeyi görmez, sadece ipucu alır</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Herkes kelimeyi tarif eden bir cümle yazar</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Tarifler okunur ve sahtekarın kim olduğu tartışılır</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Sahtekar yakalanırsa masumlar, yakalanamazsa sahtekar puan kazanır!</div></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCreate() {
+  return `
+  <div class="screen">
+    <h2>Oyun Kur</h2>
+    <div class="card">
+      <div class="field">
+        <label>İsmin</label>
+        <input id="inp-name" type="text" maxlength="20" value="${savedName}" placeholder="İsmini gir" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Tarif Süresi</label>
+        <select id="sel-timer">
+          <option value="15">15 saniye</option>
+          <option value="30">30 saniye</option>
+          <option value="45">45 saniye</option>
+          <option value="60">60 saniye</option>
+          <option value="0" selected>Süresiz</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Kelime Kategorisi</label>
+        <select id="sel-category">
+          <option value="karisik" selected>Karışık</option>
+          <option value="yiyecek">Yiyecek</option>
+          <option value="hayvan">Hayvan</option>
+          <option value="meslek">Meslek</option>
+          <option value="yer">Yer</option>
+          <option value="esya">Eşya</option>
+          <option value="spor">Spor</option>
+          <option value="doga">Doğa</option>
+          <option value="teknoloji">Teknoloji</option>
+          <option value="sanat">Sanat</option>
+          <option value="tarih">Tarih</option>
+          <option value="ulkeler">Ülkeler</option>
+          <option value="film_dizi">Film / Dizi</option>
+          <option value="muzik">Müzik</option>
+          <option value="bilim">Bilim</option>
+          <option value="mitoloji">Mitoloji</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>İpucu Zorluğu</label>
+        <select id="sel-hint">
+          <option value="cok_kolay">Çok Kolay</option>
+          <option value="kolay">Kolay</option>
+          <option value="orta" selected>Orta</option>
+          <option value="zor">Zor</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Sahtekar Sayısı</label>
+        <select id="sel-imposters">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tur Sayısı</label>
+        <select id="sel-rounds">
+          <option value="0" selected>Sınırsız</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="toggle-row">
+          <label style="margin:0">Oylama Sistemi</label>
+          <div id="tog-voting" class="toggle" data-on="false"></div>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="btn-p" id="btn-create">Oda Oluştur</button>
+    <button type="button" class="btn-ghost mt-8" onclick="goScreen('menu')">Geri</button>
+  </div>`;
+}
+
+function renderJoin() {
+  return `
+  <div class="screen">
+    <h2>Odaya Katıl</h2>
+    <div class="card">
+      <div class="field">
+        <label>Oda Kodu</label>
+        <input id="inp-code" type="text" maxlength="4" placeholder="4 haneli kod" autocomplete="off" style="text-transform:uppercase;letter-spacing:4px;text-align:center;font-size:1.3rem;font-weight:700">
+      </div>
+      <div class="field">
+        <label>İsmin</label>
+        <input id="inp-name" type="text" maxlength="20" value="${savedName}" placeholder="İsmini gir" autocomplete="off">
+      </div>
+    </div>
+    <button type="button" class="btn-p" id="btn-join">Katıl</button>
+    <button type="button" class="btn-ghost mt-8" onclick="goScreen('menu')">Geri</button>
+  </div>`;
+}
+
+function renderLobby() {
+  if (!state) return '';
+  const count = state.players.length;
+  let playerList = state.players.map(p => `
+    <div class="player-item">
+      ${avatarHTML(p)}
+      <span class="name">${esc(p.name)}</span>
+      ${p.isHost ? '<span class="tag">Ev Sahibi</span>' : ''}
+    </div>`).join('');
+
+  const canStart = isHost() && count >= 3;
+  const startBtn = isHost()
+    ? `<button type="button" class="btn-p mt-12" id="btn-start" ${canStart ? '' : 'disabled'}>${count < 3 ? 'En az 3 oyuncu gerekli' : 'Oyunu Başlat'}</button>`
+    : '<p class="sub pulse-anim mt-12">Ev sahibi oyunu başlatacak...</p>';
+
+  return `
+  <div class="screen">
+    <h2>Lobi</h2>
+    <div class="room-code">${state.code}</div>
+    <p class="player-count">${count} / 10 oyuncu</p>
+    <div class="player-list">${playerList}</div>
+    ${startBtn}
+  </div>`;
+}
+
+function renderWord() {
+  if (!state) return '';
+  const myPlayer = me();
+  const alive = alivePlayers();
+  const dots = alive.map(p => `<div class="dot ${p.ready ? 'filled' : ''}"></div>`).join('');
+
+  let boxContent;
+  if (!boxOpen) {
+    boxContent = `
+      <div class="locked-box" id="locked-box">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-label">Kelimeni görmek için dokun</div>
+      </div>`;
+  } else {
+    if (myPlayer.isSahtekar) {
+      boxContent = `
+      <div class="locked-box open sahtekar pop">
+        <div style="display:inline-block;font-size:.82rem;color:#f87171;font-weight:700;background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.4);border-radius:20px;padding:3px 14px;margin-bottom:6px">SEN SAHTEKÂRSIN</div>
+        <div style="font-size:.82rem;color:#888;margin-bottom:8px">İpucun:</div>
+        <div class="word-reveal" style="color:#f87171">${esc(myPlayer.myHint)}</div>
+        <div class="role-desc" style="color:#f87171">Gerçek kelimeyi bilmiyorsun. İpucuna bakarak kelimeyi biliyormuş gibi davran!</div>
+      </div>`;
+    } else {
+      boxContent = `
+      <div class="locked-box open normal pop">
+        <div style="display:inline-block;font-size:.82rem;color:#22c55e;font-weight:700;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);border-radius:20px;padding:3px 14px;margin-bottom:6px">MASUMSUN</div>
+        <div style="font-size:.82rem;color:#888;margin-bottom:8px">Kelimen:</div>
+        <div class="word-reveal" style="color:#f87171">${esc(myPlayer.word)}</div>
+        <div class="role-desc" style="color:#f87171">Kimseye gösterme, kelimeni söyleme!</div>
+      </div>`;
+    }
+  }
+
+  const readyBtn = myPlayer.ready
+    ? '<p class="sub pulse-anim mt-12">Diğer oyuncular bekleniyor...</p>'
+    : `<button type="button" class="btn-p mt-12" id="btn-ready" ${boxOpen ? '' : 'disabled'}>Hazırım!</button>`;
+
+  return `
+  <div class="screen" id="word-screen">
+    <div class="badge badge-red">Tur ${state.round}${state.maxRounds > 0 ? ' / ' + state.maxRounds : ''}</div>
+    <div class="dots" id="word-dots">${dots}</div>
+    <div class="text-center mb-12">
+      ${avatarHTML(myPlayer, true)}
+      <div style="margin-top:6px;font-weight:600">${esc(myPlayer.name)}</div>
+    </div>
+    ${boxContent}
+    <div id="word-ready-area">${readyBtn}</div>
+  </div>`;
+}
+
+function renderClue() {
+  if (!state) return '';
+  const myPlayer = me();
+  const hasClue = myPlayer.clue && myPlayer.clue !== true;
+  const alive = alivePlayers();
+
+  // Timer: timerSecs 0 veya falsy ise "Süresiz" yaz, yoksa sayacı göster
+  let timerHTML = '';
+  if (state.settings.timerSecs && state.settings.timerSecs > 0) {
+    timerHTML = `<div id="timer-display" class="timer">${timerLeft}sn</div>`;
+  } else {
+    timerHTML = `<div class="timer" style="font-size:1.2rem;color:#888">Süresiz</div>`;
+  }
+
+  const statusList = alive.map(p => `
+    <div class="player-item">
+      ${avatarHTML(p)}
+      <span class="name">${esc(p.name)}</span>
+      <span class="status">${p.clue ? 'Gönderildi ✓' : 'Yazıyor...'}</span>
+    </div>`).join('');
+
+  const inputArea = hasClue
+    ? `<div id="clue-input-area" data-sent="1"><div class="card text-center"><p style="color:#22c55e;font-weight:600">Gönderildi!</p><p class="sub pulse-anim mt-8">Diğer oyuncular bekleniyor...</p></div></div>`
+    : `<div id="clue-input-area"><div class="card">
+        <div class="field">
+          <label>Tarifin</label>
+          <textarea id="inp-clue" maxlength="200" placeholder="Kelimeyi tarif et..."></textarea>
+        </div>
+        <button type="button" class="btn-p" id="btn-clue">Gönder</button>
+      </div></div>`;
+
+  return `
+  <div class="screen" id="clue-screen">
+    <div class="badge badge-red">Tur ${state.round}</div>
+    ${timerHTML}
+    ${inputArea}
+    <div class="player-list mt-12" id="clue-progress-list">${statusList}</div>
+    <div class="warning mt-12">Cihazını başkalarına gösterme!</div>
+  </div>`;
+}
+
+function renderClues() {
+  if (!state) return '';
+  const alive = alivePlayers();
+  const clueCards = alive.map(p => `
+    <div class="clue-card">
+      <div class="clue-header">${avatarHTML(p)}<span style="font-weight:600">${esc(p.name)}</span></div>
+      <div class="clue-text">${esc(p.clue || '')}</div>
+    </div>`).join('');
+
+  let actionBtn = '';
+  if (isHost()) {
+    if (state.settings.votingEnabled) {
+      actionBtn = `<button type="button" class="btn-p mt-12" id="btn-go-vote">Oylamaya Geç</button>`;
+    } else {
+      actionBtn = `<button type="button" class="btn-p mt-12" onclick="goScreen('decide')">Kazananı Seç</button>`;
+    }
+  } else {
+    actionBtn = '<p class="sub pulse-anim mt-12">Ev sahibi kararı verecek...</p>';
+  }
+
+  return `
+  <div class="screen">
+    <h2>Tarifler</h2>
+    ${clueCards}
+    ${actionBtn}
+  </div>`;
+}
+
+function renderDecide() {
+  if (!state || !isHost()) return renderClues();
+  return `
+  <div class="screen">
+    <h2>Bu Turu Kim Kazandı?</h2>
+    <p class="sub mb-12">Sahtekar yakalandı mı?</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button type="button" class="btn-g" id="btn-win-masum">Masumlar Kazandı</button>
+      <button type="button" class="btn-r" id="btn-win-sahtekar">Sahtekar Kazandı</button>
+    </div>
+    <button type="button" class="btn-ghost mt-12" onclick="goScreen('clues')">Geri Dön</button>
+  </div>`;
+}
+
+function renderVote() {
+  if (!state) return '';
+  const myPlayer = me();
+  const alive = alivePlayers().filter(p => p.idx !== state.myIdx);
+
+  if (myPlayer.hasVoted) {
+    return `
+    <div class="screen">
+      <h2>Oylama</h2>
+      <div class="card text-center">
+        <p style="color:#22c55e;font-weight:600">Oyun kullandın!</p>
+        <p class="sub pulse-anim mt-8">Diğer oylar bekleniyor...</p>
+      </div>
+    </div>`;
+  }
+
+  const voteList = alive.map(p => `
+    <div class="vote-item ${selectedVote === p.idx ? 'selected' : ''}" data-vote="${p.idx}">
+      ${avatarHTML(p)}
+      <span class="name">${esc(p.name)}</span>
+    </div>`).join('');
+
+  return `
+  <div class="screen">
+    <h2>Oylama</h2>
+    <p class="sub mb-12">Sahtekar olduğunu düşündüğün kişiyi seç</p>
+    <div class="player-list">${voteList}</div>
+    <button type="button" class="btn-p mt-12" id="btn-vote" ${selectedVote >= 0 ? '' : 'disabled'}>Oyu Gönder</button>
+  </div>`;
+}
+
+function renderScoreboard() {
+  if (!state) return '';
+  const winTitle = state.roundWinner === 'masumlar'
+    ? '<h2 style="color:#22c55e">🎉 Masumlar Kazandı!</h2>'
+    : '<h2 style="color:#f87171">🎭 Sahtekar Kazandı!</h2>';
+
+  const sorted = [...state.players].sort((a, b) => b.score - a.score);
+  const scoreRows = sorted.map((p, i) => `
+    <div class="score-row">
+      <div class="rank">${i + 1}</div>
+      ${avatarHTML(p)}
+      <div class="name">${esc(p.name)} ${p.isSahtekar ? '🎭' : ''}</div>
+      <div class="pts">${p.score}</div>
+    </div>`).join('');
+
+  const hostBtns = isHost()
+    ? `<div class="btn-row mt-12">
+        <button type="button" class="btn-p" id="btn-next-round">Yeni Tur</button>
+        <button type="button" class="btn-r" id="btn-end-game">Oyunu Bitir</button>
+      </div>`
+    : '<p class="sub pulse-anim mt-12">Ev sahibi yeni turu başlatacak...</p>';
+
+  return `
+  <div class="screen">
+    ${winTitle}
+    <div class="card mt-12">
+      <div style="text-align:center;margin-bottom:8px">
+        <span style="font-size:.82rem;color:#888">Kelime:</span>
+        <span style="font-weight:700;color:#fff;margin-left:4px">${esc(state.realWord || '')}</span>
+      </div>
+      <div style="text-align:center">
+        <span style="font-size:.82rem;color:#888">İpucu:</span>
+        <span style="font-weight:600;color:#fbbf24;margin-left:4px">${esc(state.hint || '')}</span>
+      </div>
+    </div>
+    <h3 class="mt-12 mb-8">Puan Tablosu</h3>
+    ${scoreRows}
+    ${hostBtns}
+  </div>`;
+}
+
+function renderOver() {
+  if (!state) return '';
+  const sorted = [...state.players].sort((a, b) => b.score - a.score);
+  const winner = sorted[0];
+
+  const scoreRows = sorted.map((p, i) => `
+    <div class="score-row">
+      <div class="rank">${i + 1}</div>
+      ${avatarHTML(p)}
+      <div class="name">${esc(p.name)} ${p.isSahtekar ? '🎭' : ''}</div>
+      <div class="pts">${p.score}</div>
+    </div>`).join('');
+
+  let historyHTML = '';
+  if (state.wordHistory && state.wordHistory.length > 0) {
+    historyHTML = '<h3 class="mt-16 mb-8">Tüm Turlar</h3>' +
+      state.wordHistory.map(h => `
+        <div class="history-item">
+          <span class="hw">Tur ${h.round}: ${esc(h.word)}</span>
+          <span class="hr">${h.winner === 'masumlar' ? '🎉 Masumlar' : '🎭 Sahtekar'}</span>
+        </div>`).join('');
+  }
+
+  const hostBtns = isHost()
+    ? `<div class="btn-row mt-12">
+        <button type="button" class="btn-p" id="btn-restart">Yeniden Başlat</button>
+        <button type="button" class="btn-ghost" onclick="goScreen('menu')">Ana Menü</button>
+      </div>`
+    : `<button type="button" class="btn-ghost mt-12" onclick="goScreen('menu')">Ana Menü</button>`;
+
+  return `
+  <div class="screen">
+    <div class="title-glow" style="font-size:1.8rem;margin:16px 0">Oyun Bitti!</div>
+    <div class="card text-center">
+      ${avatarHTML(winner, true)}
+      <div style="margin-top:8px;font-weight:700;font-size:1.1rem">${esc(winner.name)}</div>
+      <div style="color:#fbbf24;font-weight:600;margin-top:4px">${winner.score} puan ile birinci!</div>
+    </div>
+    <h3 class="mt-12 mb-8">Final Puan Tablosu</h3>
+    ${scoreRows}
+    ${historyHTML}
+    ${hostBtns}
+  </div>`;
+}
+
+// ─── Event Binding ───
+function bindEvents() {
+  // Toggle
+  document.querySelectorAll('.toggle').forEach(el => {
+    el.addEventListener('click', () => {
+      const isOn = el.dataset.on === 'true';
+      el.dataset.on = isOn ? 'false' : 'true';
+      el.classList.toggle('on', !isOn);
+    });
+  });
+
+  // Oda oluştur
+  const btnCreate = document.getElementById('btn-create');
+  if (btnCreate) {
+    btnCreate.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('inp-name').value.trim();
+      if (!name) return showError('İsim gerekli');
+      setCookie('sahtekar_name', name, 30);
+      const tog = document.getElementById('tog-voting');
+      const timerSecs = parseInt(document.getElementById('sel-timer').value);
+      const category = document.getElementById('sel-category').value;
+      const hintLevel = document.getElementById('sel-hint').value;
+      const imposters = parseInt(document.getElementById('sel-imposters').value);
+      const maxRounds = parseInt(document.getElementById('sel-rounds').value);
+      const votingEnabled = tog && tog.dataset.on === 'true';
+      connect(() => {
+        wsSend({
+          type: 'create', name, timerSecs, category, hintLevel,
+          imposters, maxRounds, votingEnabled,
+        });
+      });
+    });
+  }
+
+  // Katıl
+  const btnJoin = document.getElementById('btn-join');
+  if (btnJoin) {
+    btnJoin.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('inp-name').value.trim();
+      const code = document.getElementById('inp-code').value.trim().toUpperCase();
+      if (!name) return showError('İsim gerekli');
+      if (!code || code.length !== 4) return showError('4 haneli oda kodu gerekli');
+      setCookie('sahtekar_name', name, 30);
+      connect(() => {
+        wsSend({ type: 'join', name, code });
+      });
+    });
+  }
+
+  // Oyunu başlat
+  const btnStart = document.getElementById('btn-start');
+  if (btnStart) btnStart.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'start' }); });
+
+  // Kilitli kutu aç
+  const lockedBox = document.getElementById('locked-box');
+  if (lockedBox) {
+    lockedBox.addEventListener('click', () => {
+      boxOpen = true;
+      render();
+    });
+  }
+
+  // Hazırım
+  const btnReady = document.getElementById('btn-ready');
+  if (btnReady) btnReady.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'ready' }); });
+
+  // Tarif gönder
+  const btnClue = document.getElementById('btn-clue');
+  if (btnClue) {
+    btnClue.addEventListener('click', (e) => {
+      e.preventDefault();
+      const clue = document.getElementById('inp-clue').value.trim();
+      if (!clue) return showError('Tarif boş olamaz');
+      wsSend({ type: 'clue', clue });
+    });
+  }
+
+  // Oylamaya geç
+  const btnGoVote = document.getElementById('btn-go-vote');
+  if (btnGoVote) btnGoVote.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'go_vote' }); });
+
+  // Kazananı seç
+  const btnWinMasum = document.getElementById('btn-win-masum');
+  if (btnWinMasum) btnWinMasum.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'set_winner', winner: 'masumlar' }); });
+  const btnWinSahtekar = document.getElementById('btn-win-sahtekar');
+  if (btnWinSahtekar) btnWinSahtekar.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'set_winner', winner: 'sahtekar' }); });
+
+  // Oy seç
+  document.querySelectorAll('.vote-item').forEach(el => {
+    el.addEventListener('click', () => {
+      selectedVote = parseInt(el.dataset.vote);
+      render();
+    });
+  });
+
+  // Oy gönder
+  const btnVote = document.getElementById('btn-vote');
+  if (btnVote) btnVote.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (selectedVote >= 0) wsSend({ type: 'vote', target: selectedVote });
+  });
+
+  // Yeni tur
+  const btnNextRound = document.getElementById('btn-next-round');
+  if (btnNextRound) btnNextRound.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'next_round' }); });
+
+  // Oyunu bitir
+  const btnEndGame = document.getElementById('btn-end-game');
+  if (btnEndGame) btnEndGame.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'end_game' }); });
+
+  // Yeniden başlat
+  const btnRestart = document.getElementById('btn-restart');
+  if (btnRestart) btnRestart.addEventListener('click', (e) => { e.preventDefault(); wsSend({ type: 'restart_game' }); });
+}
+
+// ─── Yardımcı ───
+function goScreen(s) {
+  screen = s;
+  prevPhase = null; // Ekran değiştiğinde phase cache'i sıfırla
+  render();
+}
+
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ─── Başlat ───
+render();
+</script>
+</body>
+</html>
